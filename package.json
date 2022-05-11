@@ -6,12 +6,22 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "express": "^4.16.4"
+    "body-parser": "^1.20.0",
+    "express": "^4.17.3",
+    "express-generator": "^4.16.1",
+    "fcm-node": "^1.6.1",
+    "firebase": "^9.6.11",
+    "method-override": "^3.0.0",
+    "morgan": "^1.10.0"
   },
   "author": "ZEGOCLOUD",
   "repository": {
     "type": "git",
     "url": "https://github.com/ZEGOCLOUD/dynamic_token_server_nodejs.git"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "node-hot-loader": "^1.21.7",
+    "webpack": "^5.72.1"
+  }
 }

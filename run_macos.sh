@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ $# != 2 ]
+if [ $# != 8 ]
 then
     echo "Usage: $0 AppID ServerSecret"
     echo "About how to retrieve AppID ServerSecret Check README.md"
@@ -16,5 +16,5 @@ if [ -z `which npm` ]; then
     exit
 else
     npm install
-    APP_ID=$1 SERVER_SECRET=$2 node index.js 
+    ZEGO_APP_ID=$1 ZEGO_SERVER_SECRET=$2 FA_PROJECT_ID=$3 FA_PRIVATE_KEY_ID=$4 FA_PRIVATE_KEY=$5 FA_CLIENT_EMAIL=$6 FA_CLIENT_ID=$7 FA_CLIENT_X509_CERT_URL=$8 node index.js 
 fi
