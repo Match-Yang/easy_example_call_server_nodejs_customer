@@ -1,3 +1,4 @@
+var cors = require('cors')
 var express = require('express');
 const { generateToken04 } = require('./server/zegoServerAssistant');
 var jsonBodyParser = require('body-parser').json();
@@ -113,6 +114,7 @@ function sendOfflineInvitation(req, res) {
     }
 }
 
+app.use(cors());
 app.get('/access_token', nocache, generateAccessToken);
 app.post('/store_fcm_token', jsonBodyParser, storeFcmToken);
 app.post('/call_invite', jsonBodyParser, sendOfflineInvitation);
