@@ -77,7 +77,7 @@ function storeFcmToken(req, res) {
     console.log('Update user token: ', req.body.userID);
     tokenMap[req.body.userID] = req.body.token;
     console.log('Update token finished, current count: ', Object.keys(tokenMap).length)
-    res.json({'ret': 0, 'message': 'Succeed'});
+    res.json({ 'ret': 0, 'message': 'Succeed' });
 }
 function sendOfflineInvitation(req, res) {
     console.log(req.body);
@@ -114,10 +114,76 @@ function sendOfflineInvitation(req, res) {
     }
 }
 
+function sendGroupCallInvitation(req, res) {
+    console.log(req.body);
+    var userIDList = req.body.targetUserIDList
+    if (userIDList.length == 0) {
+        res.json({ 'ret': -1, 'message': 'No user id in the list for sending group call invitation.' });
+        console.log("No user id in the list for sending group call invitation.");
+    } else {
+        var tokens = [];
+        var invalidTokens = [];
+        for (var i = 0; i < userIDList.length; i++) {
+            var userID = userIDList[i];
+            if (userID in tokenMap) {
+                tokens.push(tokenMap[userID]);
+            } else {
+                invalidTokens.push(tokenMap[userID]);
+            }
+        }
+        if (tokens.length == 0) {
+            res.json({ 'ret': -2, 'message': 'All of the user has no FCM token register' });
+            return;
+        }
+        const messaging = admin.messaging();
+        var inviteData = req.body;
+        inviteData.targetUserIDList = inviteData.targetUserIDList.join(',')
+        var payload = {
+            tokens: tokens,
+            notification: {
+                title: 'You have a new call!',
+                body: `${inviteData.callerUserName} is calling you.`
+            },
+            data: inviteData,
+        };
+        console.log("Plyload: ", payload)
+
+
+        messaging.sendMulticast(payload)
+            .then((result) => {
+                console.log(">>>>>>>>", result)
+                if (result.failureCount > 0) {
+                    const failedTokens = [];
+                    result.responses.forEach((resp, idx) => {
+                        if (!resp.success) {
+                            failedTokens.push(tokens[idx]);
+                            invalidTokens.push(tokens[idx]);
+                            console.log(resp.error)
+                        }
+                    });
+                    console.log('List of tokens that caused failures: ' + failedTokens);
+                }
+
+                if (invalidTokens.length == 0) {
+                    res.json({ 'ret': 0, 'message': 'Succeed' });
+                }
+                else if (invalidTokens.length < userIDList.length) {
+                    res.json({ 'ret': 0, 'message': 'Some of user has no FCM token register: ' + invalidTokens.join(',') })
+                } else {
+                    res.json({ 'ret': -2, 'message': 'All of the user has no FCM token register or send failed' });
+                }
+            }).catch((error) => {
+                res.json({ 'ret': -1, 'message': error });
+                console.log("Error on sending invitation: ", error)
+            });
+    }
+}
+
 app.use(cors());
 app.get('/access_token', nocache, generateAccessToken);
 app.post('/store_fcm_token', jsonBodyParser, storeFcmToken);
 app.post('/call_invite', jsonBodyParser, sendOfflineInvitation);
+app.post('/group_call_invite', jsonBodyParser, sendGroupCallInvitation);
 
 app.listen(PORT, function () {
     console.log('Service URL http://127.0.0.1:' + PORT + "/");
