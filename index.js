@@ -21,6 +21,7 @@ var FA_CLIENT_ID = process.env.FA_CLIENT_ID
 var FA_CLIENT_X509_CERT_URL = process.env.FA_CLIENT_X509_CERT_URL
 
 var tokenMap = {};
+var deviceTypeMap = {}; // Android not support sending notification and data at the same time.
 
 var app = express();
 
@@ -38,6 +39,7 @@ var serviceAccount = {
     "client_x509_cert_url": FA_CLIENT_X509_CERT_URL
 }
 var admin = require("firebase-admin");
+const { token } = require('morgan');
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
 });
@@ -76,6 +78,9 @@ function storeFcmToken(req, res) {
 
     console.log('Update user token: ', req.body.userID);
     tokenMap[req.body.userID] = req.body.token;
+    if (req.body.deviceType != undefined) {
+        deviceTypeMap[req.body.userID] = req.body.deviceType;
+    }
     console.log('Update token finished, current count: ', Object.keys(tokenMap).length)
     res.json({ 'ret': 0, 'message': 'Succeed' });
 }
@@ -90,14 +95,19 @@ function sendOfflineInvitation(req, res) {
         console.log('No fcm token for user: ' + userID);
     } else {
         const messaging = admin.messaging()
+        
         var payload = {
             token: tokenMap[userID],
-            notification: {
-                title: 'You have a new call!',
-                body: `${req.body.callerUserName} is calling you.`
-            },
             data: req.body,
         };
+        if (userID in deviceTypeMap) {
+            if (deviceTypeMap[userID] != 'android') {
+                payload['notification'] = {
+                    title: 'You have a new call!',
+                    body: `${req.body.callerUserName} is calling you.`
+                }
+            }
+        }
         console.log("Plyload: ", payload)
 
 
@@ -146,6 +156,7 @@ function sendGroupCallInvitation(req, res) {
             },
             data: inviteData,
         };
+        // TODO set notification by device type
         console.log("Plyload: ", payload)
 
 
