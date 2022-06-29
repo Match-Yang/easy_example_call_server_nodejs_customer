@@ -84,12 +84,45 @@ function storeFcmToken(req, res) {
     console.log('Update token finished, current count: ', Object.keys(tokenMap).length)
     res.json({ 'ret': 0, 'message': 'Succeed' });
 }
-function sendOfflineInvitation(req, res) {
+
+function declineCallInvitation(req, res) {
+    console.log(req.body);
+    var userID = req.body.callerUserID;
+    var roomID = req.body.roomID
+    if (userID === "" || userID === undefined) {
+        res.json({ 'ret': -1, 'message': 'Invalid userID for calceling call invitation' });
+        console.log("Invalid userID for send offline invitation");
+    } else if (roomID === "" || roomID === undefined) {
+        res.json({ 'ret': -2, 'message': 'Invalid roomID for calceling call invitation' });
+        console.log('Invalid roomID for calceling call invitation');
+    } else {
+        const messaging = admin.messaging()
+        
+        var payload = {
+            token: tokenMap[userID],
+            data: req.body,
+        };
+        console.log("Plyload: ", payload)
+
+
+        messaging.send(payload)
+            .then((result) => {
+                console.log(result)
+
+                res.json({ 'ret': 0, 'message': 'Succeed' });
+            }).catch((error) => {
+                res.json({ 'ret': -1, 'message': error });
+                console.log("Error on canceling call invitation: ", error)
+            });
+    }
+}
+
+function sendCallInvitation(req, res) {
     console.log(req.body);
     var userID = req.body.targetUserID
     if (userID === "" || userID === undefined) {
-        res.json({ 'ret': -1, 'message': 'Invalid userID for send offline invitation' });
-        console.log("Invalid userID for send offline invitation");
+        res.json({ 'ret': -1, 'message': 'Invalid userID for send call invitation' });
+        console.log("Invalid userID for send call invitation");
     } else if (!(userID in tokenMap)) {
         res.json({ 'ret': -2, 'message': 'No fcm token for user: ' + userID });
         console.log('No fcm token for user: ' + userID);
@@ -193,8 +226,9 @@ function sendGroupCallInvitation(req, res) {
 app.use(cors());
 app.get('/access_token', nocache, generateAccessToken);
 app.post('/store_fcm_token', jsonBodyParser, storeFcmToken);
-app.post('/call_invite', jsonBodyParser, sendOfflineInvitation);
+app.post('/call_invite', jsonBodyParser, sendCallInvitation);
 app.post('/group_call_invite', jsonBodyParser, sendGroupCallInvitation);
+app.post('/decline_call_invite', jsonBodyParser, declineCallInvitation);
 
 app.listen(PORT, function () {
     console.log('Service URL http://127.0.0.1:' + PORT + "/");
