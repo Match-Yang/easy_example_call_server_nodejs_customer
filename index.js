@@ -2,8 +2,18 @@ var cors = require('cors')
 var express = require('express');
 const { generateToken04 } = require('./server/zegoServerAssistant');
 var jsonBodyParser = require('body-parser').json();
+const { token } = require('morgan');
 
 var PORT = process.env.PORT || 8080;
+const CALL_ROLE_HOST = 0;
+const CALL_ROLE_AUDIENCE = 1;
+
+
+var tokenMap = {};
+var deviceTypeMap = {}; // Android not support sending notification and data at the same time.
+
+var app = express();
+
 
 if (!(process.env.ZEGO_APP_ID && process.env.ZEGO_SERVER_SECRET)) {
     throw new Error('You must define an ZEGO_APP_ID and ZEGO_SERVER_SECRET');
@@ -11,38 +21,63 @@ if (!(process.env.ZEGO_APP_ID && process.env.ZEGO_SERVER_SECRET)) {
 
 var ZEGO_APP_ID = process.env.ZEGO_APP_ID;
 var ZEGO_SERVER_SECRET = process.env.ZEGO_SERVER_SECRET;
-var FA_PROJECT_ID = process.env.FA_PROJECT_ID
-var FA_PRIVATE_KEY_ID = process.env.FA_PRIVATE_KEY_ID
-var FA_PRIVATE_KEY = process.env.FA_PRIVATE_KEY
-    ? process.env.FA_PRIVATE_KEY.replace(/\\n/gm, "\n")
-    : undefined
-var FA_CLIENT_EMAIL = process.env.FA_CLIENT_EMAIL
-var FA_CLIENT_ID = process.env.FA_CLIENT_ID
-var FA_CLIENT_X509_CERT_URL = process.env.FA_CLIENT_X509_CERT_URL
 
-var tokenMap = {};
-var deviceTypeMap = {}; // Android not support sending notification and data at the same time.
+var hostConfig = {
+    FA_PROJECT_ID: process.env.FA_PROJECT_ID,
+    FA_PRIVATE_KEY_ID: process.env.FA_PRIVATE_KEY_ID,
+    FA_PRIVATE_KEY: process.env.FA_PRIVATE_KEY ? process.env.FA_PRIVATE_KEY.replace(/\\n/gm, "\n") : undefined,
+    FA_CLIENT_EMAIL: process.env.FA_CLIENT_EMAIL,
+    FA_CLIENT_ID: process.env.FA_CLIENT_ID,
+    FA_CLIENT_X509_CERT_URL: process.env.FA_CLIENT_X509_CERT_URL
+}
 
-var app = express();
+var audienceConfig = {
+    FA_PROJECT_ID: process.env.AFA_PROJECT_ID,
+    FA_PRIVATE_KEY_ID: process.env.AFA_PRIVATE_KEY_ID,
+    FA_PRIVATE_KEY: process.env.AFA_PRIVATE_KEY ? process.env.AFA_PRIVATE_KEY.replace(/\\n/gm, "\n") : undefined,
+    FA_CLIENT_EMAIL: process.env.AFA_CLIENT_EMAIL,
+    FA_CLIENT_ID: process.env.AFA_CLIENT_ID,
+    FA_CLIENT_X509_CERT_URL: process.env.AFA_CLIENT_X509_CERT_URL
+}
 
 // var serviceAccount = require("firebase_admin.json");
-var serviceAccount = {
+
+///////////////////////////////////// use by the host
+var hostServiceAccount = {
     "type": "service_account",
-    "project_id": FA_PROJECT_ID,
-    "private_key_id": FA_PRIVATE_KEY_ID,
-    "private_key": FA_PRIVATE_KEY,
-    "client_email": FA_CLIENT_EMAIL,
-    "client_id": FA_CLIENT_ID,
+    "project_id": hostConfig.FA_PROJECT_ID,
+    "private_key_id": hostConfig.FA_PRIVATE_KEY_ID,
+    "private_key": hostConfig.FA_PRIVATE_KEY,
+    "client_email": hostConfig.FA_CLIENT_EMAIL,
+    "client_id": hostConfig.FA_CLIENT_ID,
     "auth_uri": "https://accounts.google.com/o/oauth2/auth",
     "token_uri": "https://oauth2.googleapis.com/token",
     "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-    "client_x509_cert_url": FA_CLIENT_X509_CERT_URL
+    "client_x509_cert_url": hostConfig.FA_CLIENT_X509_CERT_URL
 }
-var admin = require("firebase-admin");
-const { token } = require('morgan');
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
+var hostFirebaseAdmin = require("firebase-admin");
+hostFirebaseAdmin.initializeApp({
+    credential: hostFirebaseAdmin.credential.cert(hostServiceAccount),
 });
+
+/////////////////////////////////// use by the audience
+var audienceServiceAccount = {
+    "type": "service_account",
+    "project_id": audienceConfig.FA_PROJECT_ID,
+    "private_key_id": audienceConfig.FA_PRIVATE_KEY_ID,
+    "private_key": audienceConfig.FA_PRIVATE_KEY,
+    "client_email": audienceConfig.FA_CLIENT_EMAIL,
+    "client_id": audienceConfig.FA_CLIENT_ID,
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": audienceConfig.FA_CLIENT_X509_CERT_URL
+}
+var audienceFirebaseAdmin = require("firebase-admin");
+audienceFirebaseAdmin.initializeApp({
+    credential: audienceFirebaseAdmin.credential.cert(audienceServiceAccount),
+});
+
 
 function nocache(req, res, next) {
     res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
@@ -96,15 +131,14 @@ function declineCallInvitation(req, res) {
         res.json({ 'ret': -2, 'message': 'Invalid roomID for calceling call invitation' });
         console.log('Invalid roomID for calceling call invitation');
     } else {
-        const messaging = admin.messaging()
-        
         var payload = {
             token: tokenMap[userID],
             data: req.body,
         };
         console.log("Plyload: ", payload)
 
-
+        var callRole = req.body.callRole;
+        const messaging = callRole == CALL_ROLE_HOST ? audienceFirebaseAdmin.messaging() : hostFirebaseAdmin.messaging()
         messaging.send(payload)
             .then((result) => {
                 console.log(result)
@@ -127,8 +161,6 @@ function sendCallInvitation(req, res) {
         res.json({ 'ret': -2, 'message': 'No fcm token for user: ' + userID });
         console.log('No fcm token for user: ' + userID);
     } else {
-        const messaging = admin.messaging()
-        
         var payload = {
             token: tokenMap[userID],
             data: req.body,
@@ -143,7 +175,10 @@ function sendCallInvitation(req, res) {
         }
         console.log("Plyload: ", payload)
 
-
+        // If the role equal to host, mean he/she want to send the call invitation to audience, then we need to use the audience firebase-admin to send the message.
+        // If not, mean he/she want to send the call invitation to host, then we need to use the host firebase-admin to send the message.
+        var callRole = req.body.callRole;
+        const messaging = callRole == CALL_ROLE_HOST ? audienceFirebaseAdmin.messaging() : hostFirebaseAdmin.messaging()
         messaging.send(payload)
             .then((result) => {
                 console.log(result)
@@ -178,7 +213,6 @@ function sendGroupCallInvitation(req, res) {
             res.json({ 'ret': -2, 'message': 'All of the user has no FCM token register' });
             return;
         }
-        const messaging = admin.messaging();
         var inviteData = req.body;
         inviteData.targetUserIDList = inviteData.targetUserIDList.join(',')
         var payload = {
@@ -192,7 +226,10 @@ function sendGroupCallInvitation(req, res) {
         // TODO set notification by device type
         console.log("Plyload: ", payload)
 
-
+        // If the role equal to host, mean he/she want to send the call invitation to audience, then we need to use the audience firebase-admin to send the message.
+        // If not, mean he/she want to send the call invitation to host, then we need to use the host firebase-admin to send the message.
+        var callRole = req.body.callRole;
+        const messaging = callRole == CALL_ROLE_HOST ? audienceFirebaseAdmin.messaging() : hostFirebaseAdmin.messaging();
         messaging.sendMulticast(payload)
             .then((result) => {
                 console.log(">>>>>>>>", result)

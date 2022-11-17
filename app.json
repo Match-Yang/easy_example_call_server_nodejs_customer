@@ -12,7 +12,7 @@
     "ARS"
   ],
   "website": "https://www.zegocloud.com/",
-  "repository": "https://github.com/ZEGOCLOUD/easy_example_call_server_nodejs.git",
+  "repository": "https://github.com/Match-Yang/easy_example_call_server_nodejs.git",
   "env": {
     "ZEGO_APP_ID": {
       "description": "ZEGOCLOUD App ID: Get your AppID from ZEGOCLOUD Console [My Projects] : https://console.zegocloud.com/project",
@@ -23,27 +23,52 @@
       "required": true
     },
     "FA_PROJECT_ID": {
-      "description": "Firebase Admin SDK, project_id in the Private-Key-File json: Get your Private-Key-File json from Firebase Console [Project settings -> Service accounts -> Firebase Admin SDK -> Generate new private key] : https://console.firebase.google.com/",
+      "description": "For Host Firebase Project, project_id in the Private-Key-File json: Get your Private-Key-File json from Firebase Console [Project settings -> Service accounts -> Firebase Admin SDK -> Generate new private key] : https://console.firebase.google.com/",
       "required": true
     },
     "FA_PRIVATE_KEY_ID": {
-      "description": "Firebase Admin SDK, private_key_id in the Private-Key-File json: Get your Private-Key-File json from Firebase Console [Project settings -> Service accounts -> Firebase Admin SDK -> Generate new private key] : https://console.firebase.google.com/",
+      "description": "For Host Firebase Project, private_key_id in the Private-Key-File json: Get your Private-Key-File json from Firebase Console [Project settings -> Service accounts -> Firebase Admin SDK -> Generate new private key] : https://console.firebase.google.com/",
       "required": true
     },
     "FA_PRIVATE_KEY": {
-      "description": "Firebase Admin SDK, private_key in the Private-Key-File json: Get your Private-Key-File json from Firebase Console [Project settings -> Service accounts -> Firebase Admin SDK -> Generate new private key] : https://console.firebase.google.com/",
+      "description": "For Host Firebase Project, private_key in the Private-Key-File json: Get your Private-Key-File json from Firebase Console [Project settings -> Service accounts -> Firebase Admin SDK -> Generate new private key] : https://console.firebase.google.com/",
       "required": true
     },
     "FA_CLIENT_EMAIL": {
-      "description": "Firebase Admin SDK, client_email in the Private-Key-File json: Get your Private-Key-File json from Firebase Console [Project settings -> Service accounts -> Firebase Admin SDK -> Generate new private key] : https://console.firebase.google.com/",
+      "description": "For Host Firebase Project, client_email in the Private-Key-File json: Get your Private-Key-File json from Firebase Console [Project settings -> Service accounts -> Firebase Admin SDK -> Generate new private key] : https://console.firebase.google.com/",
       "required": true
     },
     "FA_CLIENT_ID": {
-      "description": "Firebase Admin SDK, client_id in the Private-Key-File json: Get your Private-Key-File json from Firebase Console [Project settings -> Service accounts -> Firebase Admin SDK -> Generate new private key] : https://console.firebase.google.com/",
+      "description": "For Host Firebase Project, client_id in the Private-Key-File json: Get your Private-Key-File json from Firebase Console [Project settings -> Service accounts -> Firebase Admin SDK -> Generate new private key] : https://console.firebase.google.com/",
       "required": true
     },
     "FA_CLIENT_X509_CERT_URL": {
-      "description": "Firebase Admin SDK, client_x509_cert_url in the Private-Key-File json: Get your Private-Key-File json from Firebase Console [Project settings -> Service accounts -> Firebase Admin SDK -> Generate new private key] : https://console.firebase.google.com/",
+      "description": "For Host Firebase Project, client_x509_cert_url in the Private-Key-File json: Get your Private-Key-File json from Firebase Console [Project settings -> Service accounts -> Firebase Admin SDK -> Generate new private key] : https://console.firebase.google.com/",
+      "required": true
+    }
+    ,
+    "AFA_PROJECT_ID": {
+      "description": "For Audience Firebase Project, project_id in the Private-Key-File json: Get your Private-Key-File json from Firebase Console [Project settings -> Service accounts -> Firebase Admin SDK -> Generate new private key] : https://console.firebase.google.com/",
+      "required": true
+    },
+    "AFA_PRIVATE_KEY_ID": {
+      "description": "For Audience Firebase Project, private_key_id in the Private-Key-File json: Get your Private-Key-File json from Firebase Console [Project settings -> Service accounts -> Firebase Admin SDK -> Generate new private key] : https://console.firebase.google.com/",
+      "required": true
+    },
+    "AFA_PRIVATE_KEY": {
+      "description": "For Audience Firebase Project, private_key in the Private-Key-File json: Get your Private-Key-File json from Firebase Console [Project settings -> Service accounts -> Firebase Admin SDK -> Generate new private key] : https://console.firebase.google.com/",
+      "required": true
+    },
+    "AFA_CLIENT_EMAIL": {
+      "description": "For Audience Firebase Project, client_email in the Private-Key-File json: Get your Private-Key-File json from Firebase Console [Project settings -> Service accounts -> Firebase Admin SDK -> Generate new private key] : https://console.firebase.google.com/",
+      "required": true
+    },
+    "AFA_CLIENT_ID": {
+      "description": "For Audience Firebase Project, client_id in the Private-Key-File json: Get your Private-Key-File json from Firebase Console [Project settings -> Service accounts -> Firebase Admin SDK -> Generate new private key] : https://console.firebase.google.com/",
+      "required": true
+    },
+    "AFA_CLIENT_X509_CERT_URL": {
+      "description": "For Audience Firebase Project, client_x509_cert_url in the Private-Key-File json: Get your Private-Key-File json from Firebase Console [Project settings -> Service accounts -> Firebase Admin SDK -> Generate new private key] : https://console.firebase.google.com/",
       "required": true
     }
   }
