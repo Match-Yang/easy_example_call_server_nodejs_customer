@@ -45,8 +45,7 @@
     "FA_CLIENT_X509_CERT_URL": {
       "description": "For Host Firebase Project, client_x509_cert_url in the Private-Key-File json: Get your Private-Key-File json from Firebase Console [Project settings -> Service accounts -> Firebase Admin SDK -> Generate new private key] : https://console.firebase.google.com/",
       "required": true
-    }
-    ,
+    },
     "AFA_PROJECT_ID": {
       "description": "For Audience Firebase Project, project_id in the Private-Key-File json: Get your Private-Key-File json from Firebase Console [Project settings -> Service accounts -> Firebase Admin SDK -> Generate new private key] : https://console.firebase.google.com/",
       "required": true
