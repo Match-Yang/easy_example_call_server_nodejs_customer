@@ -22,27 +22,27 @@
       "description": "ZEGOCLOUD ServerSecret: Get your ServerSecret from ZEGOCLOUD Console [My Projects -> project's Edit -> Basic Configurations] : https://console.zegocloud.com/project",
       "required": true
     },
-    "FA_PROJECT_ID": {
+    "HOST_FA_PROJECT_ID": {
       "description": "For Host Firebase Project, project_id in the Private-Key-File json: Get your Private-Key-File json from Firebase Console [Project settings -> Service accounts -> Firebase Admin SDK -> Generate new private key] : https://console.firebase.google.com/",
       "required": true
     },
-    "FA_PRIVATE_KEY_ID": {
+    "HOST_FA_PRIVATE_KEY_ID": {
       "description": "For Host Firebase Project, private_key_id in the Private-Key-File json: Get your Private-Key-File json from Firebase Console [Project settings -> Service accounts -> Firebase Admin SDK -> Generate new private key] : https://console.firebase.google.com/",
       "required": true
     },
-    "FA_PRIVATE_KEY": {
+    "HOST_FA_PRIVATE_KEY": {
       "description": "For Host Firebase Project, private_key in the Private-Key-File json: Get your Private-Key-File json from Firebase Console [Project settings -> Service accounts -> Firebase Admin SDK -> Generate new private key] : https://console.firebase.google.com/",
       "required": true
     },
-    "FA_CLIENT_EMAIL": {
+    "HOST_FA_CLIENT_EMAIL": {
       "description": "For Host Firebase Project, client_email in the Private-Key-File json: Get your Private-Key-File json from Firebase Console [Project settings -> Service accounts -> Firebase Admin SDK -> Generate new private key] : https://console.firebase.google.com/",
       "required": true
     },
-    "FA_CLIENT_ID": {
+    "HOST_FA_CLIENT_ID": {
       "description": "For Host Firebase Project, client_id in the Private-Key-File json: Get your Private-Key-File json from Firebase Console [Project settings -> Service accounts -> Firebase Admin SDK -> Generate new private key] : https://console.firebase.google.com/",
       "required": true
     },
-    "FA_CLIENT_X509_CERT_URL": {
+    "HOST_FA_CLIENT_X509_CERT_URL": {
       "description": "For Host Firebase Project, client_x509_cert_url in the Private-Key-File json: Get your Private-Key-File json from Firebase Console [Project settings -> Service accounts -> Firebase Admin SDK -> Generate new private key] : https://console.firebase.google.com/",
       "required": true
     },
