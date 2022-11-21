@@ -58,7 +58,7 @@ var hostServiceAccount = {
 var hostFirebaseAdmin = require("firebase-admin");
 hostFirebaseAdmin.initializeApp({
     credential: hostFirebaseAdmin.credential.cert(hostServiceAccount),
-});
+}, "host");
 
 /////////////////////////////////// use by the audience
 var audienceServiceAccount = {
@@ -76,7 +76,7 @@ var audienceServiceAccount = {
 var audienceFirebaseAdmin = require("firebase-admin");
 audienceFirebaseAdmin.initializeApp({
     credential: audienceFirebaseAdmin.credential.cert(audienceServiceAccount),
-});
+}, "audience");
 
 
 function nocache(req, res, next) {
