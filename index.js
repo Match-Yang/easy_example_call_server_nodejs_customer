@@ -40,7 +40,22 @@ var audienceConfig = {
     FA_CLIENT_X509_CERT_URL: process.env.AFA_CLIENT_X509_CERT_URL
 }
 
-// var serviceAccount = require("firebase_admin.json");
+
+// var hostJson = require("")
+// hostConfig.FA_PROJECT_ID = hostJson.project_id
+// hostConfig.FA_PRIVATE_KEY_ID = hostJson.private_key_id
+// hostConfig.FA_PRIVATE_KEY = hostJson.private_key
+// hostConfig.FA_CLIENT_EMAIL = hostJson.client_email
+// hostConfig.FA_CLIENT_ID = hostJson.client_id
+// hostConfig.FA_CLIENT_X509_CERT_URL = hostJson.client_x509_cert_url
+
+// var audienceJson = require("")
+// audienceConfig.FA_PROJECT_ID = audienceJson.project_id
+// audienceConfig.FA_PRIVATE_KEY_ID = audienceJson.private_key_id
+// audienceConfig.FA_PRIVATE_KEY = audienceJson.private_key
+// audienceConfig.FA_CLIENT_EMAIL = audienceJson.client_email
+// audienceConfig.FA_CLIENT_ID = audienceJson.client_id
+// audienceConfig.FA_CLIENT_X509_CERT_URL = audienceJson.client_x509_cert_url
 
 ///////////////////////////////////// use by the host
 var hostServiceAccount = {
@@ -55,9 +70,9 @@ var hostServiceAccount = {
     "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
     "client_x509_cert_url": hostConfig.FA_CLIENT_X509_CERT_URL
 }
-var hostFirebaseAdmin = require("firebase-admin");
-hostFirebaseAdmin.initializeApp({
-    credential: hostFirebaseAdmin.credential.cert(hostServiceAccount),
+var FirebaseAdmin = require("firebase-admin");
+var hostFirebaseAdmin = FirebaseAdmin.initializeApp({
+    credential: FirebaseAdmin.credential.cert(hostServiceAccount),
 }, "host");
 
 /////////////////////////////////// use by the audience
@@ -73,9 +88,9 @@ var audienceServiceAccount = {
     "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
     "client_x509_cert_url": audienceConfig.FA_CLIENT_X509_CERT_URL
 }
-var audienceFirebaseAdmin = require("firebase-admin");
-audienceFirebaseAdmin.initializeApp({
-    credential: audienceFirebaseAdmin.credential.cert(audienceServiceAccount),
+// var audienceFirebaseAdmin = require("firebase-admin");
+var audienceFirebaseAdmin = FirebaseAdmin.initializeApp({
+    credential: FirebaseAdmin.credential.cert(audienceServiceAccount),
 }, "audience");
 
 
@@ -131,9 +146,11 @@ function declineCallInvitation(req, res) {
         res.json({ 'ret': -2, 'message': 'Invalid roomID for calceling call invitation' });
         console.log('Invalid roomID for calceling call invitation');
     } else {
+        var data = req.body;
+        delete data['role']
         var payload = {
             token: tokenMap[userID],
-            data: req.body,
+            data: data,
         };
         console.log("Plyload: ", payload)
 
@@ -161,9 +178,11 @@ function sendCallInvitation(req, res) {
         res.json({ 'ret': -2, 'message': 'No fcm token for user: ' + userID });
         console.log('No fcm token for user: ' + userID);
     } else {
+        var inviteData = req.body;
+        delete inviteData['role']
         var payload = {
             token: tokenMap[userID],
-            data: req.body,
+            data: inviteData,
         };
         if (userID in deviceTypeMap) {
             if (deviceTypeMap[userID] != 'android') {
@@ -214,6 +233,7 @@ function sendGroupCallInvitation(req, res) {
             return;
         }
         var inviteData = req.body;
+        delete inviteData['role']
         inviteData.targetUserIDList = inviteData.targetUserIDList.join(',')
         var payload = {
             tokens: tokens,
