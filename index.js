@@ -147,6 +147,7 @@ function declineCallInvitation(req, res) {
         console.log('Invalid roomID for calceling call invitation');
     } else {
         var data = req.body;
+        var callRole = req.body.role;
         delete data['role']
         var payload = {
             token: tokenMap[userID],
@@ -154,7 +155,6 @@ function declineCallInvitation(req, res) {
         };
         console.log("Plyload: ", payload)
 
-        var callRole = req.body.callRole;
         const messaging = callRole == CALL_ROLE_HOST ? audienceFirebaseAdmin.messaging() : hostFirebaseAdmin.messaging()
         messaging.send(payload)
             .then((result) => {
@@ -179,6 +179,7 @@ function sendCallInvitation(req, res) {
         console.log('No fcm token for user: ' + userID);
     } else {
         var inviteData = req.body;
+        var callRole = req.body.role;
         delete inviteData['role']
         var payload = {
             token: tokenMap[userID],
@@ -196,7 +197,7 @@ function sendCallInvitation(req, res) {
 
         // If the role equal to host, mean he/she want to send the call invitation to audience, then we need to use the audience firebase-admin to send the message.
         // If not, mean he/she want to send the call invitation to host, then we need to use the host firebase-admin to send the message.
-        var callRole = req.body.callRole;
+
         const messaging = callRole == CALL_ROLE_HOST ? audienceFirebaseAdmin.messaging() : hostFirebaseAdmin.messaging()
         messaging.send(payload)
             .then((result) => {
@@ -233,6 +234,7 @@ function sendGroupCallInvitation(req, res) {
             return;
         }
         var inviteData = req.body;
+        var callRole = req.body.role;
         delete inviteData['role']
         inviteData.targetUserIDList = inviteData.targetUserIDList.join(',')
         var payload = {
@@ -248,7 +250,7 @@ function sendGroupCallInvitation(req, res) {
 
         // If the role equal to host, mean he/she want to send the call invitation to audience, then we need to use the audience firebase-admin to send the message.
         // If not, mean he/she want to send the call invitation to host, then we need to use the host firebase-admin to send the message.
-        var callRole = req.body.callRole;
+
         const messaging = callRole == CALL_ROLE_HOST ? audienceFirebaseAdmin.messaging() : hostFirebaseAdmin.messaging();
         messaging.sendMulticast(payload)
             .then((result) => {
